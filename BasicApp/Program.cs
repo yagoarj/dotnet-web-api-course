@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,28 +18,56 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+app.MapPost("/saveproduct", (Product product) =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    ProductRepository.Add(product);
+});
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("getproduct/{id}", ([FromRoute] int id) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateTime.Now.AddDays(index),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    var product = ProductRepository.GetBy(id);
+    return product;
+});
+
+app.MapPut("editproduct", (Product product) =>
+{
+    var productSaved = ProductRepository.GetBy(product.Id);
+    productSaved.Name = product.Name;
+});
+
+app.MapDelete("deleteproduct/{id}", ([FromRoute] int id) =>
+{
+    var productSaved = ProductRepository.GetBy(id);
+    ProductRepository.Remove(productSaved);
+});
 
 app.Run();
 
-internal record WeatherForecast(DateTime Date, int TemperatureC, string? Summary)
+public static class ProductRepository
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public static List<Product> Products { get; set; }
+
+    public static void Add(Product product)
+    {
+        if (Products == null)
+            Products = new List<Product>();
+
+        Products.Add(product);
+    }
+
+    public static Product GetBy(int id)
+    {
+        return Products.FirstOrDefault(p => p.Id == id);
+    }
+
+    public static void Remove(Product product)
+    {
+        Products.Remove(product);
+    }
+}
+
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 }
