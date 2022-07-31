@@ -18,27 +18,36 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/saveproduct", (Product product) =>
+app.MapPost("/products", (Product product) =>
 {
     ProductRepository.Add(product);
+    return Results.Created($"/products/{product.Id}", product.Id);
 });
 
-app.MapGet("getproduct/{id}", ([FromRoute] int id) =>
+app.MapGet("/products/{id}", ([FromRoute] int id) =>
 {
     var product = ProductRepository.GetBy(id);
-    return product;
+
+    if (product != null)
+        return Results.Ok(product);
+
+    return Results.NotFound();
 });
 
-app.MapPut("editproduct", (Product product) =>
+app.MapPut("/products", (Product product) =>
 {
     var productSaved = ProductRepository.GetBy(product.Id);
     productSaved.Name = product.Name;
+
+    return Results.Ok();
 });
 
-app.MapDelete("deleteproduct/{id}", ([FromRoute] int id) =>
+app.MapDelete("/products/{id}", ([FromRoute] int id) =>
 {
     var productSaved = ProductRepository.GetBy(id);
     ProductRepository.Remove(productSaved);
+
+    return Results.Ok();
 });
 
 app.Run();
