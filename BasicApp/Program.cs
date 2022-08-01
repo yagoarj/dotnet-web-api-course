@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<ApplicationDbContext>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -79,4 +81,11 @@ public class Product
 {
     public int Id { get; set; }
     public string Name { get; set; }
+}
+
+public class ApplicationDbContext : DbContext
+{
+    public DbSet<Product> Products { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlServer("Server=localhost;Database=BasicApp;User Id=sa;Password=@Sql2019;MultipleActiveResultSets=true;Encrypt=yes;TrustServerCertificate=yes");
 }
