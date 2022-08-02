@@ -81,11 +81,18 @@ public class Product
 {
     public int Id { get; set; }
     public string Name { get; set; }
+    public string Description { get; set; }
 }
 
 public class ApplicationDbContext : DbContext
 {
     public DbSet<Product> Products { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Product>().Property(p => p.Description).HasMaxLength(255).IsRequired(false);
+        builder.Entity<Product>().Property(p => p.Name).HasMaxLength(100).IsRequired();
+    }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlServer("Server=localhost;Database=BasicApp;User Id=sa;Password=@Sql2019;MultipleActiveResultSets=true;Encrypt=yes;TrustServerCertificate=yes");
 }
