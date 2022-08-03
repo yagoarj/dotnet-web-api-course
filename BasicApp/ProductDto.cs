@@ -1,0 +1,1 @@
+﻿public record ProductDto(string Name, string Description, int CategoryId, List<string> Tags);

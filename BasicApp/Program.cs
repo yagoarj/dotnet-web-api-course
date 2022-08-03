@@ -19,9 +19,32 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapPost("/products", (Product product) =>
+app.MapPost("/products", (ProductDto productDto, ApplicationDbContext context) =>
 {
-    ProductRepository.Add(product);
+    var category = context.Categories.Where(c => c.Id == productDto.CategoryId).First();
+
+    var product = new Product
+    {
+        Name = productDto.Name,
+        Description = productDto.Description,
+        Category = category
+    };
+
+    if(productDto.Tags != null)
+    {
+        product.Tags = new List<Tag>();
+
+        foreach (var tag in productDto.Tags)
+        {
+            product.Tags.Add(new Tag
+            {
+                Name = tag
+            });
+        }
+    }
+
+    context.Products.Add(product);
+    context.SaveChanges();
     return Results.Created($"/products/{product.Id}", product.Id);
 });
 
