@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSqlServer<ApplicationDbContext>(builder.Configuration["Database:Sqlserver"]);
@@ -30,7 +31,7 @@ app.MapPost("/products", (ProductDto productDto, ApplicationDbContext context) =
         Category = category
     };
 
-    if(productDto.Tags != null)
+    if (productDto.Tags != null)
     {
         product.Tags = new List<Tag>();
 
@@ -44,13 +45,18 @@ app.MapPost("/products", (ProductDto productDto, ApplicationDbContext context) =
     }
 
     context.Products.Add(product);
+
     context.SaveChanges();
+
     return Results.Created($"/products/{product.Id}", product.Id);
 });
 
-app.MapGet("/products/{id}", ([FromRoute] int id) =>
+app.MapGet("/products/{id}", ([FromRoute] int id, ApplicationDbContext context) =>
 {
-    var product = ProductRepository.GetBy(id);
+    var product = context.Products
+    .Include(p => p.Category)
+    .Include(p => p.Tags)
+    .Where(p => p.Id == id).First();
 
     if (product != null)
         return Results.Ok(product);
@@ -58,18 +64,39 @@ app.MapGet("/products/{id}", ([FromRoute] int id) =>
     return Results.NotFound();
 });
 
-app.MapPut("/products", (Product product) =>
+app.MapPut("/products/{id}", ([FromRoute] int id, ProductDto productDto, ApplicationDbContext context) =>
 {
-    var productSaved = ProductRepository.GetBy(product.Id);
-    productSaved.Name = product.Name;
+    var product = context.Products
+    .Include(p => p.Tags)
+    .Where(p => p.Id == id).First();
+
+    var category = context.Categories.Where(c => c.Id == productDto.CategoryId).First();
+
+    product.Category = category;
+    product.Name = productDto.Name;
+    product.Description = productDto.Description;
+
+    if (productDto.Tags != null)
+    {
+        product.Tags = new List<Tag>();
+
+        foreach (var tag in productDto.Tags)
+        {
+            product.Tags.Add(new Tag { Name = tag });
+        }
+    }
+
+    context.SaveChanges();
 
     return Results.Ok();
 });
 
-app.MapDelete("/products/{id}", ([FromRoute] int id) =>
+app.MapDelete("/products/{id}", ([FromRoute] int id, ApplicationDbContext context) =>
 {
-    var productSaved = ProductRepository.GetBy(id);
-    ProductRepository.Remove(productSaved);
+    var product = context.Products.Where(p => p.Id == id).First();
+    context.Products.Remove(product);
+
+    context.SaveChanges();
 
     return Results.Ok();
 });
