@@ -7,11 +7,12 @@ public abstract class Entity
         Id = Guid.NewGuid();
     }
 
-    public Guid Id { get; }
-    public string Name { get; }
-    public string CreatedBy { get; }
-    public DateTime CreatedOn { get; }
-    public string EditedBy { get; }
-    public DateTime EditedOn { get; }
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string CreatedBy { get; set; }
+    public DateTime CreatedOn { get; set; }
+    public string EditedBy { get; set; }
+    public DateTime EditedOn { get; set; }
+    public bool Active { get; set; } = true;
 
 }
