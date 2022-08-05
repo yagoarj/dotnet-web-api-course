@@ -18,5 +18,8 @@ public class ApplicationDbContext : DbContext
         builder.Entity<Category>().Property(c => c.Name).IsRequired();
     }
 
-    protected override void ConfigureConventions(ModelConfigurationBuilder configuration) { }
+    protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
+    {
+        configuration.Properties<string>().HaveMaxLength(100);
+    }
 }
