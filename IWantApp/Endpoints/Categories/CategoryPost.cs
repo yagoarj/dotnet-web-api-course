@@ -9,11 +9,15 @@ public class CategoryPost
     public static string[] Methods => new string[] { HttpMethod.Post.ToString() };
     public static Delegate Handle => Action;
 
-    public static IResult Action(CategoryDto categoryDto, ApplicationDbContext context)
+    public static IResult Action(CategoryRequest categoryDto, ApplicationDbContext context)
     {
         var category = new Category
         {
-            Name = categoryDto.Name
+            Name = categoryDto.Name,
+            CreatedBy = "test",
+            CreatedOn = DateTime.Now,
+            EditedBy = "test",
+            EditedOn = DateTime.Now,
         };
 
         context.Categories.Add(category);
