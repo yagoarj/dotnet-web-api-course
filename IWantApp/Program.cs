@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSqlServer<ApplicationDbContext>(builder.Configuration["ConnectionString:IWantApp"]);
 builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddScoped<QueryAllUsersWithClaimName>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -29,5 +30,6 @@ app.MapMethods(CategoryGetAll.Template, CategoryGetAll.Methods, CategoryGetAll.H
 app.MapMethods(CategoryPut.Template, CategoryPut.Methods, CategoryPut.Handle);
 
 app.MapMethods(EmployeePost.Template, EmployeePost.Methods, EmployeePost.Handle);
+app.MapMethods(EmployeeGetAll.Template, EmployeeGetAll.Methods, EmployeeGetAll.Handle);
 
 app.Run();
