@@ -1,4 +1,5 @@
-﻿using IWantApp.Domain.Products;
+﻿using Flunt.Notifications;
+using IWantApp.Domain.Products;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        builder.Ignore<Notification>();
 
         builder.Entity<Product>().Property(p => p.Name).IsRequired();
         builder.Entity<Product>().Property(p => p.Description).HasMaxLength(255);

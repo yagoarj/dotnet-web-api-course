@@ -1,5 +1,6 @@
 ﻿using IWantApp.Domain.Products;
 using IWantApp.Infra.Data;
+using System.Security.Claims;
 
 namespace IWantApp.Endpoints.Categories;
 
@@ -9,16 +10,16 @@ public class CategoryPost
     public static string[] Methods => new string[] { HttpMethod.Post.ToString() };
     public static Delegate Handle => Action;
 
-    public static IResult Action(CategoryRequest categoryRequest, ApplicationDbContext context)
+    public static IResult Action(CategoryRequest categoryRequest, HttpContext httpContext, ApplicationDbContext context)
     {
-        var category = new Category(categoryRequest.Name)
+        var userId = httpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+
+        var category = new Category(categoryRequest.Name, userId, userId);
+
+        if (!category.IsValid)
         {
-            Name = categoryRequest.Name,
-            CreatedBy = "test",
-            CreatedOn = DateTime.Now,
-            EditedBy = "test",
-            EditedOn = DateTime.Now,
-        };
+            return Results.ValidationProblem(category.Notifications.ConvertToProblemDetails());
+        }
 
         context.Categories.Add(category);
 

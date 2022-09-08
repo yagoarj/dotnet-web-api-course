@@ -1,8 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Flunt.Notifications;
 
 namespace IWantApp;
 
-public abstract class Entity
+public abstract class Entity : Notifiable<Notification>
 {
     public Entity()
     {
